@@ -1,0 +1,30 @@
+/dts-v1/;
+
+#include <riscv32-litex-vexriscv.dtsi>
+
+/ {
+
+  model = "Custom C10LP RefKit SoC";
+  compatible = "custom,c10lp_refkit_soc";
+
+  chosen {
+    zephyr,console = &uart0;
+    zephyr,shell-uart = &uart0;
+    zephyr,sram = &ram0;
+  };
+
+  ram0: memory@40000000 {
+    device_type = "memory";
+    reg = <0x40000000 0x02000000>;
+  };
+
+};
+
+&uart0 {
+  status = "okay";
+  current-speed = <115200>;
+};
+
+&timer0 {
+  status = "okay";
+};

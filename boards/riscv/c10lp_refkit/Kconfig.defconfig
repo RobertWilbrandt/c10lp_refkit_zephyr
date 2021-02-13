@@ -1,0 +1,3 @@
+config BOARD
+	default "c10lp_refkit"
+	depends on BOARD_C10LP_REFKIT

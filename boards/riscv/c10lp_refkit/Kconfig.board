@@ -1,0 +1,3 @@
+config BOARD_C10LP_REFKIT
+	bool "C10LP RefKit"
+	depends on SOC_RISCV32_LITEX_VEXRISCV
