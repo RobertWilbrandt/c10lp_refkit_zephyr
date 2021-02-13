@@ -3,11 +3,12 @@
 import argparse
 import os
 
-from litex.soc.integration.builder import (Builder, builder_argdict,
-                                           builder_args)
+from litex.soc.integration.builder import Builder
 from litex.soc.integration.soc_sdram import soc_sdram_argdict, soc_sdram_args
 
 from .zephyr_soc import ZephyrSoC
+
+OUTPUT_DIR = "build_soc"
 
 SYS_CLK_FREQ = 50 * 10 ** 6
 
@@ -20,7 +21,6 @@ def parse_args():
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load", action="store_true", help="Load bitstream")
 
-    builder_args(parser)
     soc_sdram_args(parser)
 
     return parser.parse_args()
@@ -41,7 +41,7 @@ def main():
     args = parse_args()
 
     soc = ZephyrSoC(sys_clk_freq=SYS_CLK_FREQ, **soc_sdram_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, output_dir=OUTPUT_DIR)
 
     builder.build(run=args.build)
 
