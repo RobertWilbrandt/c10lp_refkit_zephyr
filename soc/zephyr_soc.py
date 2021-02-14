@@ -1,7 +1,7 @@
 """Small SoC definition for zephyr to run on"""
 import logging
 
-from litex.soc.cores.gpio import GPIOIn, GPIOOut
+from litex.soc.cores.gpio import GPIOOut
 from litex_boards.targets.c10lprefkit import BaseSoC
 
 
@@ -30,3 +30,6 @@ class ZephyrSoC(BaseSoC):
             *args,
             **kwargs,
         )  # TODO: Test if we actually need "full" for ecall
+
+        self.submodules.gpio_leds = GPIOOut(self.platform.request("gpio_leds"))
+        self.add_csr("gpio_leds")
