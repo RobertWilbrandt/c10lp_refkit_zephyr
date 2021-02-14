@@ -13,10 +13,6 @@
     zephyr,sram = &ram0;
   };
 
-  aliases {
-    led0 = &bar_led_0;
-  };
-
   ram0: memory@40000000 {
     device_type = "memory";
     reg = <0x40000000 0x02000000>;
@@ -26,21 +22,13 @@
     compatible = "litex,gpio";
     reg = <0xe0004000 0x4>;
     reg-names = "control";
-    ngpios = <4>;
+    ngpios = <8>;
     label = "gpio_leds";
     port-is-output;
     status = "disabled";
     gpio-controller;
     #gpio-cells = <2>;
     status = "okay";
-  };
-
-  bar_leds {
-    compatible = "gpio-leds";
-    bar_led_0: led_0 {
-      gpios = <&led_bar_gpio 0 0>;
-      label = "Bar LED 0";
-    };
   };
 
 };

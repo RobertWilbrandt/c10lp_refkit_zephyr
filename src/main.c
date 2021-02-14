@@ -1,44 +1,51 @@
 #include <zephyr.h>
 #include <drivers/gpio.h>
 
-#define LED0_NODE DT_ALIAS(led0)
+#define LED_BAR_NODE DT_NODELABEL(led_bar_gpio)
 
-#if DT_NODE_HAS_STATUS(LED0_NODE, okay)
-#define LED0_LABEL DT_GPIO_LABEL(LED0_NODE, gpios)
-#define LED0_PIN DT_GPIO_PIN(LED0_NODE, gpios)
-#else  // DT_NODE_HAS_STATUS(LED0_NODE, okay)
-#error "Could not find alias led0"
-#define LED0_LABEL ""
-#define LED0_PIN 0
-#endif  // DT_NODE_HAS_STATUS(LED0_NODE, okay)
+#if DT_NODE_HAS_STATUS(LED_BAR_NODE, okay)
+
+#define LED_BAR_LABEL DT_LABEL(LED_BAR_NODE)
+#define LED_BAR_NGPIOS DT_PROP(LED_BAR_NODE, ngpios)
+
+#else  // DT_NODE_HAS_STATUS(LED_BAR_NODE, okay)
+
+#error "Could not find led bar in device tree"
+#define LED_BAR_LABEL ""
+#define LED_BAR_NGPIOS 0
+
+#endif  // DT_NODE_HAS_STATUS(LED_BAR_NODE, okay)
 
 void main(void)
 {
   /*
-   * Initialize led0
+   * Initialize leds
    */
-  const struct device* led0_dev = device_get_binding(LED0_LABEL);
-  if (led0_dev == NULL)
+  const struct device* led_bar_dev = device_get_binding(LED_BAR_LABEL);
+  if (led_bar_dev == NULL)
   {
-    printk("Could not get binding for device %s\n", LED0_LABEL);
+    printk("Could not get binding for device %s\n", LED_BAR_LABEL);
   }
   else
   {
-    printk("Successfully got binding for device %s\n", LED0_LABEL);
+    printk("Successfully got binding for device %s\n", LED_BAR_LABEL);
   }
 
-  int ret =
-      gpio_pin_configure(led0_dev, LED0_PIN, GPIO_OUTPUT | GPIO_ACTIVE_HIGH);
-  if (ret < 0)
+  for (int i = 0; i < LED_BAR_NGPIOS; ++i)
   {
-    printk("Error while initializing led0 (pin %d) gpio: %d\n", LED0_PIN, ret);
-  }
-  else
-  {
-    printk("Successfully initialized led0 on pin %d\n", LED0_PIN);
+    int ret =
+        gpio_pin_configure(led_bar_dev, i, GPIO_OUTPUT | GPIO_ACTIVE_HIGH);
+    if (ret < 0)
+    {
+      printk("Error while initializing led bar pin %d: %d\n", i, ret);
+    }
+    else
+    {
+      printk("Successfully initialized led bar pin %d\n", i);
+    }
   }
 
-  bool led0_state = false;
+  int led_bar_cnt = 0;
 
   /*
    * Main loop
@@ -46,12 +53,17 @@ void main(void)
   struct k_timer timer;
   k_timer_init(&timer, NULL, NULL);
 
-  k_timer_start(&timer, K_SECONDS(1), K_SECONDS(1));
+  k_timer_start(&timer, K_MSEC(100), K_MSEC(100));
   while (1)
   {
     k_timer_status_sync(&timer);
 
-    led0_state = !led0_state;
-    gpio_pin_set(led0_dev, LED0_PIN, (int)led0_state);
+    gpio_pin_toggle(led_bar_dev, led_bar_cnt);
+
+    led_bar_cnt++;
+    if (led_bar_cnt >= LED_BAR_NGPIOS)
+    {
+      led_bar_cnt = 0;
+    }
   }
 }
