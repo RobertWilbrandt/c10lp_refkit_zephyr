@@ -15,12 +15,12 @@
 
   ram0: memory@40000000 {
     device_type = "memory";
-    reg = <0x40000000 0x02000000>;
+    reg = <0x40000000 0x2000000>;
   };
 
   led_bar_gpio: gpio@e0004000 {
     compatible = "litex,gpio";
-    reg = <0xe0004000 0x4>;
+    reg = <0x82004000 0x4>;
     reg-names = "control";
     ngpios = <8>;
     label = "gpio_leds";
@@ -36,9 +36,20 @@
 &uart0 {
   status = "okay";
   current-speed = <115200>;
+  reg = <0x82002000 0x18>;
+  interrupts = <0x0 0>;
 };
 
 &timer0 {
   status = "okay";
+  reg = <0x82002800 0x40>;
+  interrupts = <0x1 0>;
 };
 
+&eth0 {
+    status = "disabled";
+};
+
+&i2c0 {
+    status = "disabled";
+};

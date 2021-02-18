@@ -9,20 +9,6 @@ class ZephyrSoC(BaseSoC):
     def __init__(self, sys_clk_freq, *args, **kwargs):
         self._logger = logging.getLogger("ZephyrSoC")
 
-        self.mem_map["rom"] = 0x00000000
-        self.mem_map["main_ram"] = 0x40000000
-        self.mem_map["csr"] = 0xE0000000
-
-        self.csr_map["ctrl"] = 0
-        self.csr_map["uart"] = 3
-        self.csr_map["timer0"] = 5
-        self.csr_map["sdram"] = 6
-
-        self.interrupt_map["timer0"] = 1
-        self.interrupt_map["uart"] = 2
-
-        kwargs["max_sdram_size"] = 0x10000000
-
         super().__init__(
             cpu_type="vexriscv",
             cpu_variant="full",

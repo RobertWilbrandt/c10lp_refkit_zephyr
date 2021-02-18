@@ -26,36 +26,16 @@ def parse_args():
     return parser.parse_args()
 
 
-def print_soc_map(val, use_hex=False):
-    entries = [i for i in val.items()]
-    entries.sort(key=lambda x: x[1])
-    for (name, i) in entries:
-        if use_hex:
-            print(f"  {name:>15}   0x{i:08x}")
-        else:
-            print(f"  {name:>15}   {i}")
-
-
 def main():
     """Entry point"""
     args = parse_args()
 
     soc = ZephyrSoC(sys_clk_freq=SYS_CLK_FREQ, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir=OUTPUT_DIR)
+    builder = Builder(
+        soc, output_dir=OUTPUT_DIR, csr_csv=os.path.join(OUTPUT_DIR, "csr.csv")
+    )
 
     builder.build(run=args.build)
-
-    print()
-    print("Memory map:")
-    print_soc_map(soc.mem_map, use_hex=True)
-
-    print()
-    print("CSR map:")
-    print_soc_map(soc.csr_map)
-
-    print()
-    print("Interrupt map:")
-    print_soc_map(soc.irq.locs)
 
     if args.load:
         prog = soc.platform.create_programmer()
