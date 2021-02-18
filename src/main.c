@@ -45,6 +45,8 @@ void main(void)
     }
   }
 
+  const gpio_port_pins_t led_bar_port_mask = BIT_MASK(8);
+  const gpio_port_value_t led_bar_pattern = BIT_MASK(4);
   int led_bar_cnt = 0;
 
   /*
@@ -58,7 +60,10 @@ void main(void)
   {
     k_timer_status_sync(&timer);
 
-    gpio_pin_toggle(led_bar_dev, led_bar_cnt);
+    gpio_port_set_masked(led_bar_dev, led_bar_port_mask,
+                         (led_bar_pattern << led_bar_cnt) |
+                             (led_bar_pattern >>
+                              (8 - led_bar_cnt)));  // rotating left-shift
 
     led_bar_cnt++;
     if (led_bar_cnt >= LED_BAR_NGPIOS)
