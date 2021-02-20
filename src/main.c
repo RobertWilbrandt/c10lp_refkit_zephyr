@@ -2,7 +2,11 @@
 #include <drivers/gpio.h>
 
 #define LED_BAR_NODE DT_NODELABEL(led_bar_gpio)
+#define SWITCHES_NODE DT_NODELABEL(switches_gpio)
 
+/*
+ * LED bar
+ */
 #if DT_NODE_HAS_STATUS(LED_BAR_NODE, okay)
 
 #define LED_BAR_LABEL DT_LABEL(LED_BAR_NODE)
@@ -16,15 +20,93 @@
 
 #endif  // DT_NODE_HAS_STATUS(LED_BAR_NODE, okay)
 
+/*
+ * Switches
+ */
+#if DT_NODE_HAS_STATUS(SWITCHES_NODE, okay)
+
+#define SWITCHES_LABEL DT_LABEL(SWITCHES_NODE)
+#define SWITCHES_NGPIOS DT_PROP(SWITCHES_NODE, ngpios)
+
+#else  // DT_NODE_HAS_STATUS(SWITCHES_NODE, okay)
+
+#error "Could not find switches in device tree"
+#define SWITCHES_LABEL ""
+#define SWITCHES_NGPIOS 0
+
+#endif  // DT_NODE_HAS_STATUS(SWITCHES_NODE, okay)
+
+const struct device* init_led_bar();
+const struct device* init_switches();
+
 void main(void)
 {
+  const struct device* led_bar_dev = init_led_bar();
+  const struct device* switches_dev = init_switches();
+
+  const gpio_port_pins_t led_bar_port_mask = BIT_MASK(8);
+  const gpio_port_value_t led_bar_pattern = BIT_MASK(4);
+  int led_bar_cnt = 0;
+
+  gpio_port_value_t last_switches = 0;
+
   /*
-   * Initialize leds
+   * Main loop
    */
+  struct k_timer timer;
+  k_timer_init(&timer, NULL, NULL);
+
+  k_timer_start(&timer, K_MSEC(100), K_MSEC(100));
+  while (1)
+  {
+    k_timer_status_sync(&timer);
+
+    // React to switches
+    gpio_port_value_t switches;
+    gpio_port_get(switches_dev, &switches);
+
+    gpio_port_value_t switches_switched = switches ^ last_switches;
+    if (switches_switched != 0)
+    {
+      for (int i = 0; i < SWITCHES_NGPIOS; ++i)
+      {
+        if (switches_switched & BIT(i))
+        {
+          if (switches & BIT(i))
+          {
+            printk("Switch %d pressed\n", i);
+          }
+          else
+          {
+            printk("Switch %d released\n", i);
+          }
+        }
+      }
+    }
+
+    last_switches = switches;
+
+    // Animate led bar
+    gpio_port_set_masked(led_bar_dev, led_bar_port_mask,
+                         (led_bar_pattern << led_bar_cnt) |
+                             (led_bar_pattern >>
+                              (8 - led_bar_cnt)));  // rotating left-shift
+
+    led_bar_cnt++;
+    if (led_bar_cnt >= LED_BAR_NGPIOS)
+    {
+      led_bar_cnt = 0;
+    }
+  }
+}
+
+const struct device* init_led_bar()
+{
   const struct device* led_bar_dev = device_get_binding(LED_BAR_LABEL);
   if (led_bar_dev == NULL)
   {
     printk("Could not get binding for device %s\n", LED_BAR_LABEL);
+    return NULL;
   }
   else
   {
@@ -38,6 +120,7 @@ void main(void)
     if (ret < 0)
     {
       printk("Error while initializing led bar pin %d: %d\n", i, ret);
+      return NULL;
     }
     else
     {
@@ -45,30 +128,35 @@ void main(void)
     }
   }
 
-  const gpio_port_pins_t led_bar_port_mask = BIT_MASK(8);
-  const gpio_port_value_t led_bar_pattern = BIT_MASK(4);
-  int led_bar_cnt = 0;
+  return led_bar_dev;
+}
 
-  /*
-   * Main loop
-   */
-  struct k_timer timer;
-  k_timer_init(&timer, NULL, NULL);
-
-  k_timer_start(&timer, K_MSEC(100), K_MSEC(100));
-  while (1)
+const struct device* init_switches()
+{
+  const struct device* switches_dev = device_get_binding(SWITCHES_LABEL);
+  if (switches_dev == NULL)
   {
-    k_timer_status_sync(&timer);
+    printk("Could not get binding for device %s\n", SWITCHES_LABEL);
+    return NULL;
+  }
+  else
+  {
+    printk("Successfully got binding for device %s\n", SWITCHES_LABEL);
+  }
 
-    gpio_port_set_masked(led_bar_dev, led_bar_port_mask,
-                         (led_bar_pattern << led_bar_cnt) |
-                             (led_bar_pattern >>
-                              (8 - led_bar_cnt)));  // rotating left-shift
-
-    led_bar_cnt++;
-    if (led_bar_cnt >= LED_BAR_NGPIOS)
+  for (int i = 0; i < SWITCHES_NGPIOS; ++i)
+  {
+    int ret = gpio_pin_configure(switches_dev, i, GPIO_INPUT | GPIO_ACTIVE_LOW);
+    if (ret < 0)
     {
-      led_bar_cnt = 0;
+      printk("Error while initializing switch %d: %d\n", i, ret);
+      return NULL;
+    }
+    else
+    {
+      printk("Successfully initialized switch %d\n", i);
     }
   }
+
+  return switches_dev;
 }
