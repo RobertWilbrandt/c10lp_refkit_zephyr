@@ -43,6 +43,11 @@
 
 };
 
+&dna0 {
+  status = "okay";
+  reg = <0x82001000 0xE4>;
+};
+
 &uart0 {
   status = "okay";
   current-speed = <115200>;

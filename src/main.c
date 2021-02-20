@@ -1,8 +1,19 @@
 #include <zephyr.h>
 #include <drivers/gpio.h>
+#include <drivers/hwinfo.h>
 
+#define HWINFO_NODE DT_NODELABEL(dna0)
 #define LED_BAR_NODE DT_NODELABEL(led_bar_gpio)
 #define SWITCHES_NODE DT_NODELABEL(switches_gpio)
+
+/*
+ * Hardware info
+ */
+#if !DT_NODE_HAS_STATUS(HWINFO_NODE, okay)
+
+#error "Could not find hwinfo in device tree"
+
+#endif  // if DT_NODE_HAS_STATUS(HWINFO_NODE, okay)
 
 /*
  * LED bar
@@ -36,11 +47,15 @@
 
 #endif  // DT_NODE_HAS_STATUS(SWITCHES_NODE, okay)
 
+void print_hwinfo();
+
 const struct device* init_led_bar();
 const struct device* init_switches();
 
 void main(void)
 {
+  print_hwinfo();
+
   const struct device* led_bar_dev = init_led_bar();
   const struct device* switches_dev = init_switches();
 
@@ -97,6 +112,24 @@ void main(void)
     {
       led_bar_cnt = 0;
     }
+  }
+}
+
+void print_hwinfo()
+{
+  const size_t buf_len = DT_PROP_BY_IDX(HWINFO_NODE, reg, 1) / sizeof(uint32_t);
+  uint8_t buf[buf_len + 1];
+
+  ssize_t ret = hwinfo_get_device_id(buf, buf_len);
+  if (ret < 0)
+  {
+    printk("Error while reading hardware info: %d\n", ret);
+    return;
+  }
+  else
+  {
+    buf[ret] = 0;
+    printk("Hardware info: %s [%d/%d]\n", buf, ret, buf_len);
   }
 }
 
