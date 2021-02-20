@@ -32,7 +32,9 @@ def main():
 
     soc = ZephyrSoC(sys_clk_freq=SYS_CLK_FREQ, **soc_sdram_argdict(args))
     builder = Builder(
-        soc, output_dir=OUTPUT_DIR, csr_csv=os.path.join(OUTPUT_DIR, "csr.csv")
+        soc,
+        output_dir=OUTPUT_DIR,
+        csr_svd=os.path.join(OUTPUT_DIR, "csr.svd"),
     )
 
     builder.build(run=args.build)
