@@ -1,11 +1,11 @@
 /dts-v1/;
 
-#include <riscv32-litex-vexriscv.dtsi>
+#include <c10lp_refkit_soc.dtsi>
 
 / {
 
-  model = "Custom C10LP RefKit SoC";
-  compatible = "custom,c10lp_refkit_soc";
+  model = "Cyclone 10 LP RefKit development board";
+  compatible = "custom,c10lp_refkit";
 
   chosen {
     zephyr,console = &uart0;
@@ -13,58 +13,17 @@
     zephyr,sram = &ram0;
   };
 
-  ram0: memory@40000000 {
-    device_type = "memory";
-    reg = <0x40000000 0x2000000>;
-  };
-
-  led_bar_gpio: gpio@82004000 {
-    compatible = "litex,gpio";
-    reg = <0x82004000 0x4>;
-    reg-names = "control";
-    ngpios = <8>;
-    label = "gpio_leds";
-    port-is-output;
-    gpio-controller;
-    #gpio-cells = <2>;
-    status = "okay";
-  };
-
-  switches_gpio: gpio@82004800 {
-    compatible = "litex,gpio";
-    reg = <0x82004800 0x4>;
-    reg-names = "control";
-    ngpios = <5>;
-    label = "switches";
-    gpio-controller;
-    #gpio-cells = <2>;
-    status = "okay";
-  };
-
 };
 
 &dna0 {
   status = "okay";
-  reg = <0x82001000 0xE4>;
 };
 
 &uart0 {
   status = "okay";
   current-speed = <115200>;
-  reg = <0x82002000 0x18>;
-  interrupts = <0x0 0>;
 };
 
 &timer0 {
   status = "okay";
-  reg = <0x82002800 0x40>;
-  interrupts = <0x1 0>;
-};
-
-&eth0 {
-    status = "disabled";
-};
-
-&i2c0 {
-    status = "disabled";
 };

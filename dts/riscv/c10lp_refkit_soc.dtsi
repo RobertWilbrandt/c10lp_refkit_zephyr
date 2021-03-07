@@ -1,0 +1,95 @@
+/ {
+
+  #address-cells = <1>;
+  #size-cells = <1>;
+  compatible = "custom,c10lp_refkit";
+  model = "custom,c10lp_refkit";
+
+  cpus {
+    #address-cells = <1>;
+    #size-cells = <0>;
+    cpu@0 {
+      clock-frequency = <50000000>;
+      timebase-frequency = <32768>;
+      compatible = "spinalhdl,vexriscv", "riscv";
+      device_type = "cpu";
+      reg = <0>;
+      riscv,isa = "rv32imac";
+      status = "okay";
+    };
+  };
+
+  soc {
+    #address-cells = <1>;
+    #size-cells = <1>;
+    compatible = "custom,c10lp_refkit";
+    ranges;
+
+    ram0: memory@40000000 {
+      device_type = "memory";
+      reg = <0x40000000 0x10000000>;
+    };
+
+    intc0: interrupt-controller@bc0 {
+      #interrupt-cells = <2>;
+      compatible = "vexriscv,intc0";
+      interrupt-controller;
+      reg = <0xbc0 0x4 0xfc0 0x4>;
+      reg-names = "irq_mask", "irq_pending";
+      riscv,max-priority = <7>;
+    };
+
+    timer0: timer@82002800 {
+      compatible = "litex,timer0";
+      interrupt-parent = <&intc0>;
+      interrupts = <1 0>;
+      reg = <0x82002800 0x40>;
+      reg-names = "control";
+      label = "timer0";
+      status = "disabled";
+    };
+
+    uart0: serial@82002000 {
+      compatible="litex,uart0";
+      interrupt-parent = <&intc0>;
+      interrupts = <0 0>;
+      reg = <0x82002000 0x18>;
+      reg-names = "control";
+      label = "uart0";
+      status = "disabled";
+    };
+
+    dna0: dna@82001000 {
+      compatible = "litex,dna0";
+      reg = <0x82001000 0xE4>;
+      reg-names = "mem";
+      label = "dna0";
+      status = "disabled";
+    };
+
+    led_bar: gpio@82004000 {
+      compatible = "litex,gpio";
+      reg = <0x82004000 0x4>;
+      reg-names = "control";
+      ngpios = <8>;
+      label = "gpio_leds";
+      port-is-output;
+      gpio-controller;
+      #gpio-cells = <2>;
+      status = "okay";
+    };
+
+    switches: gpio@82004800 {
+      compatible = "litex,gpio";
+      reg = <0x82004800 0x4>;
+      reg-names = "control";
+      ngpios = <5>;
+      label = "switches";
+      gpio-controller;
+      #gpio-cells = <2>;
+      status = "okay";
+    };
+
+  };
+
+};

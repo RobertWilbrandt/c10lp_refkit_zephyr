@@ -3,8 +3,8 @@
 #include <drivers/hwinfo.h>
 
 #define HWINFO_NODE DT_NODELABEL(dna0)
-#define LED_BAR_NODE DT_NODELABEL(led_bar_gpio)
-#define SWITCHES_NODE DT_NODELABEL(switches_gpio)
+#define LED_BAR_NODE DT_NODELABEL(led_bar)
+#define SWITCHES_NODE DT_NODELABEL(switches)
 
 /*
  * Hardware info
