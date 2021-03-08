@@ -47,10 +47,32 @@
 
 #endif  // DT_NODE_HAS_STATUS(SWITCHES_NODE, okay)
 
+/*
+ * Memory regions
+ */
+#define SRAM_NODE DT_NODELABEL(sram)
+#define HYPERRAM_NODE DT_NODELABEL(hyperram)
+
+#if DT_NODE_EXISTS(SRAM_NODE) && DT_NODE_EXISTS(HYPERRAM_NODE)
+
+#define SRAM_ADDR DT_REG_ADDR(SRAM_NODE)
+#define HYPERRAM_ADDR DT_REG_ADDR(HYPERRAM_NODE)
+
+#define SRAM_SIZE DT_REG_SIZE(SRAM_NODE)
+#define HYPERRAM_SIZE DT_REG_SIZE(HYPERRAM_NODE)
+
+#else  // if DT_NODE_EXISTS(SRAM_NODE) && DT_NODE_EXISTS(HYPERRAM_NODE)
+
+#error "Cannot find all expected memory regions"
+
+#endif  // if DT_NODE_EXISTS(SRAM_NODE) && DT_NODE_EXISTS(HYPERRAM_NODE)
+
 void print_hwinfo();
 
 const struct device* init_led_bar();
 const struct device* init_switches();
+
+void memtest(void* base, size_t size, char* region_name);
 
 void main(void)
 {
@@ -64,6 +86,13 @@ void main(void)
   int led_bar_cnt = 0;
 
   gpio_port_value_t last_switches = 0;
+
+  /*
+   * Run memtest
+   */
+  printk("\n");
+  memtest((void*)SRAM_ADDR, SRAM_SIZE, "sram");
+  memtest((void*)HYPERRAM_ADDR, HYPERRAM_SIZE, "hyperram");
 
   /*
    * Main loop
@@ -192,4 +221,60 @@ const struct device* init_switches()
   }
 
   return switches_dev;
+}
+
+void memtest(void* base, size_t size, char* region_name)
+{
+  printk("Running memtest for region %s\n", region_name);
+  printk("==========================\n");
+  printk("Base address: %p\n", base);
+  printk("Test size:    %zu\n", size);
+  printk("\n");
+
+  volatile size_t* test_base = base;
+  const size_t num_tests = size / sizeof(size_t);
+
+  int last_percent = 0;
+
+  printk("Writing rising counter...\n");
+  for (size_t i = 0; i < num_tests; ++i)
+  {
+    if ((i % 100) == 0)
+    {
+      int cur_percent = 100 * i / num_tests;
+      if (cur_percent != last_percent)
+      {
+        last_percent = cur_percent;
+        printk("                              %d%%\n", cur_percent);
+      }
+    }
+    test_base[i] = i;
+  }
+  printk("                              ...done\n");
+
+  last_percent = 0;
+  printk("Checking rising counter\n");
+  for (size_t i = 0; i < (size / sizeof(size_t)); ++i)
+  {
+    if ((i % 100) == 0)
+    {
+      int cur_percent = 100 * i / num_tests;
+      if (cur_percent != last_percent)
+      {
+        last_percent = cur_percent;
+        printk("                              %d%%\n", cur_percent);
+      }
+    }
+
+    int read_value = test_base[i];
+    if (read_value != i)
+    {
+      printk("\nError! Expected value %d at index %zu but got %d!\n\n\n", i, i,
+             read_value);
+      return;
+    }
+  }
+  printk("                              ...done\n");
+
+  printk("Memory check for region %s successfull\n\n", region_name);
 }
