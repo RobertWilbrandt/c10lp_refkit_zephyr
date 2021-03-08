@@ -227,8 +227,8 @@ void memtest(void* base, size_t size, char* region_name)
 {
   printk("Running memtest for region %s\n", region_name);
   printk("==========================\n");
-  printk("Base address: %p\n", base);
-  printk("Test size:    %zu\n", size);
+  printk("Base address: %08x\n", (unsigned int)base);
+  printk("Test size:    %08x\n", size);
   printk("\n");
 
   volatile size_t* test_base = base;
@@ -239,7 +239,7 @@ void memtest(void* base, size_t size, char* region_name)
   printk("Writing rising counter...\n");
   for (size_t i = 0; i < num_tests; ++i)
   {
-    if ((i % 100) == 0)
+    if ((i % 256) == 0)
     {
       int cur_percent = 100 * i / num_tests;
       if (cur_percent != last_percent)
