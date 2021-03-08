@@ -5,6 +5,10 @@
   compatible = "custom,c10lp_refkit";
   model = "custom,c10lp_refkit";
 
+  chosen {
+    zephyr,sram = &main_ram;
+  };
+
   cpus {
     #address-cells = <1>;
     #size-cells = <0>;
@@ -25,7 +29,7 @@
     compatible = "custom,c10lp_refkit";
     ranges;
 
-    ram0: memory@40000000 {
+    main_ram: memory@40000000 {
       device_type = "memory";
       reg = <0x40000000 0x10000000>;
     };
