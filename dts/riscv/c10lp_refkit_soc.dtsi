@@ -61,29 +61,29 @@
       riscv,max-priority = <7>;
     };
 
-    timer0: timer@F0003000 {
+    timer0: timer@F0003800 {
       compatible = "litex,timer0";
       interrupt-parent = <&intc0>;
       interrupts = <1 0>;
-      reg = <0xF0003000 0x40>;
+      reg = <0xF0003800 0x40>;
       reg-names = "control";
       label = "timer0";
       status = "disabled";
     };
 
-    uart0: serial@F0003800 {
+    uart0: serial@F0004000 {
       compatible="litex,uart0";
       interrupt-parent = <&intc0>;
       interrupts = <0 0>;
-      reg = <0xF0003800 0x18>;
+      reg = <0xF0004000 0x18>;
       reg-names = "control";
       label = "uart0";
       status = "disabled";
     };
 
-    dna0: dna@F0001800 {
+    dna0: dna@F0002000 {
       compatible = "litex,dna0";
-      reg = <0xF0001800 0xE4>;
+      reg = <0xF0002000 0xE4>;
       reg-names = "mem";
       label = "dna0";
       status = "disabled";
@@ -101,7 +101,7 @@
       status = "okay";
     };
 
-    switches: gpio@82004800 {
+    switches: gpio@F0000800 {
       compatible = "litex,gpio";
       reg = <0xF0000800 0x4>;
       reg-names = "control";

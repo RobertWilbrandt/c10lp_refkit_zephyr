@@ -27,7 +27,7 @@ def main():
     """Entry point"""
     args = parse_args()
 
-    soc = ZephyrSoC(sys_clk_freq=SYS_CLK_FREQ)
+    soc = ZephyrSoC(sys_clk_freq=SYS_CLK_FREQ, output_dir=OUTPUT_DIR)
     builder = Builder(
         soc,
         output_dir=OUTPUT_DIR,

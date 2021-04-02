@@ -1,6 +1,8 @@
 """Small SoC definition for zephyr to run on"""
 import logging
+import os
 
+from litescope import LiteScopeAnalyzer
 from litex.build.generic_platform import IOStandard, Pins, Subsignal
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex_boards.targets.c10lprefkit import BaseSoC
@@ -17,7 +19,7 @@ pmod1_uart_ios = [
 
 
 class ZephyrSoC(BaseSoC):
-    def __init__(self, sys_clk_freq, *args, **kwargs):
+    def __init__(self, sys_clk_freq, output_dir, *args, **kwargs):
         self._logger = logging.getLogger("ZephyrSoC")
 
         super().__init__(
@@ -37,3 +39,11 @@ class ZephyrSoC(BaseSoC):
 
         self.platform.add_extension(pmod1_uart_ios)
         self.add_uartbone(name="pmod1_uart")
+
+        analyzer_signals = [self.cpu.ibus, self.cpu.dbus]
+        self.submodules.analyzer = LiteScopeAnalyzer(
+            analyzer_signals,
+            depth=512,
+            clock_domain="sys",
+            csr_csv=os.path.join(output_dir, "analyzer.csv"),
+        )
