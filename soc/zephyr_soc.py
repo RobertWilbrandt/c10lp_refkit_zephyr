@@ -1,7 +1,7 @@
 """Small SoC definition for zephyr to run on"""
 import logging
 
-from litex.soc.cores.gpio import GPIOOut, GPIOIn
+from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex_boards.targets.c10lprefkit import BaseSoC
 
 
@@ -13,6 +13,7 @@ class ZephyrSoC(BaseSoC):
             cpu_type="vexriscv",
             cpu_variant="full",
             csr_data_width=8,
+            integrated_rom_size=0x8000,
             *args,
             **kwargs,
         )  # TODO: Test if we actually need "full" for ecall

@@ -4,7 +4,6 @@ import argparse
 import os
 
 from litex.soc.integration.builder import Builder
-from litex.soc.integration.soc_sdram import soc_sdram_argdict, soc_sdram_args
 
 from .zephyr_soc import ZephyrSoC
 
@@ -21,8 +20,6 @@ def parse_args():
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load", action="store_true", help="Load bitstream")
 
-    soc_sdram_args(parser)
-
     return parser.parse_args()
 
 
@@ -30,7 +27,7 @@ def main():
     """Entry point"""
     args = parse_args()
 
-    soc = ZephyrSoC(sys_clk_freq=SYS_CLK_FREQ, **soc_sdram_argdict(args))
+    soc = ZephyrSoC(sys_clk_freq=SYS_CLK_FREQ)
     builder = Builder(
         soc,
         output_dir=OUTPUT_DIR,
