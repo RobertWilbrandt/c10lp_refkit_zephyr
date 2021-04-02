@@ -1,4 +1,5 @@
 #include <zephyr.h>
+#include <stdio.h>
 #include <drivers/gpio.h>
 #include <drivers/hwinfo.h>
 
@@ -93,11 +94,11 @@ void main(void)
         {
           if (switches & BIT(i))
           {
-            printk("Switch %d pressed\n", i);
+            printf("Switch %d pressed\n", i);
           }
           else
           {
-            printk("Switch %d released\n", i);
+            printf("Switch %d released\n", i);
           }
         }
       }
@@ -127,13 +128,13 @@ void print_hwinfo()
   ssize_t ret = hwinfo_get_device_id(buf, buf_len);
   if (ret < 0)
   {
-    printk("Error while reading hardware info: %d\n", ret);
+    printf("Error while reading hardware info: %d\n", ret);
     return;
   }
   else
   {
     buf[ret] = 0;
-    printk("Hardware info: %s [%d/%d]\n", buf, ret, buf_len);
+    printf("Hardware info: %s [%d/%d]\n", buf, ret, buf_len);
   }
 }
 
@@ -142,12 +143,12 @@ const struct device* init_led_bar()
   const struct device* led_bar_dev = device_get_binding(LED_BAR_LABEL);
   if (led_bar_dev == NULL)
   {
-    printk("Could not get binding for device %s\n", LED_BAR_LABEL);
+    printf("Could not get binding for device %s\n", LED_BAR_LABEL);
     return NULL;
   }
   else
   {
-    printk("Successfully got binding for device %s\n", LED_BAR_LABEL);
+    printf("Successfully got binding for device %s\n", LED_BAR_LABEL);
   }
 
   for (int i = 0; i < LED_BAR_NGPIOS; ++i)
@@ -156,12 +157,12 @@ const struct device* init_led_bar()
         gpio_pin_configure(led_bar_dev, i, GPIO_OUTPUT | GPIO_ACTIVE_HIGH);
     if (ret < 0)
     {
-      printk("Error while initializing led bar pin %d: %d\n", i, ret);
+      printf("Error while initializing led bar pin %d: %d\n", i, ret);
       return NULL;
     }
     else
     {
-      printk("Successfully initialized led bar pin %d\n", i);
+      printf("Successfully initialized led bar pin %d\n", i);
     }
   }
 
@@ -173,12 +174,12 @@ const struct device* init_switches()
   const struct device* switches_dev = device_get_binding(SWITCHES_LABEL);
   if (switches_dev == NULL)
   {
-    printk("Could not get binding for device %s\n", SWITCHES_LABEL);
+    printf("Could not get binding for device %s\n", SWITCHES_LABEL);
     return NULL;
   }
   else
   {
-    printk("Successfully got binding for device %s\n", SWITCHES_LABEL);
+    printf("Successfully got binding for device %s\n", SWITCHES_LABEL);
   }
 
   for (int i = 0; i < SWITCHES_NGPIOS; ++i)
@@ -186,12 +187,12 @@ const struct device* init_switches()
     int ret = gpio_pin_configure(switches_dev, i, GPIO_INPUT | GPIO_ACTIVE_LOW);
     if (ret < 0)
     {
-      printk("Error while initializing switch %d: %d\n", i, ret);
+      printf("Error while initializing switch %d: %d\n", i, ret);
       return NULL;
     }
     else
     {
-      printk("Successfully initialized switch %d\n", i);
+      printf("Successfully initialized switch %d\n", i);
     }
   }
 
