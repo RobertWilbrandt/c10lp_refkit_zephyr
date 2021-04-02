@@ -1,8 +1,19 @@
 """Small SoC definition for zephyr to run on"""
 import logging
 
+from litex.build.generic_platform import IOStandard, Pins, Subsignal
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex_boards.targets.c10lprefkit import BaseSoC
+
+pmod1_uart_ios = [
+    (
+        "pmod1_uart",
+        0,
+        Subsignal("rx", Pins("P4")),
+        Subsignal("tx", Pins("P6")),
+        IOStandard("3.3-V LVTTL"),
+    )
+]
 
 
 class ZephyrSoC(BaseSoC):
@@ -23,3 +34,6 @@ class ZephyrSoC(BaseSoC):
 
         self.submodules.switches = GPIOIn(self.platform.request_all("sw"))
         self.add_csr("switches")
+
+        self.platform.add_extension(pmod1_uart_ios)
+        self.add_uartbone(name="pmod1_uart")

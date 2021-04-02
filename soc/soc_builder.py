@@ -32,6 +32,7 @@ def main():
         soc,
         output_dir=OUTPUT_DIR,
         csr_svd=os.path.join(OUTPUT_DIR, "csr.svd"),
+        csr_csv=os.path.join(OUTPUT_DIR, "csr.csv"),
     )
 
     builder.build(run=args.build)
