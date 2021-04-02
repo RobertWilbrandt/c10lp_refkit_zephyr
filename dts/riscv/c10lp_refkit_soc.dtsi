@@ -40,7 +40,7 @@
 
       sram: memory@01000000 {
         device_type = "memory";
-        reg = <0x01000000 0x00002000>;
+        reg = <0x10000000 0x00002000>;
       };
 
       hyperram: memory@20000000 {
