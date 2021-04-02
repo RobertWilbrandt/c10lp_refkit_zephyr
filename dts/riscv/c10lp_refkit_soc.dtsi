@@ -36,16 +36,19 @@
       main_ram: memory@40000000 {
         device_type = "memory";
         reg = <0x40000000 0x02000000>;
+        label = "main_ram";
       };
 
-      sram: memory@01000000 {
+      memory@01000000 {
         device_type = "memory";
         reg = <0x10000000 0x00002000>;
+        label = "sram";
       };
 
-      hyperram: memory@20000000 {
+      memory@20000000 {
         device_type = "memory";
         reg = <0x20000000 0x00800000>;
+        label = "hyperram";
       };
     };
 
